@@ -14,11 +14,15 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.text.TextPaint;
+import android.text.TextUtils;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -26,16 +30,16 @@ import com.flyco.tablayout.SlidingTabLayout;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.ohmybilibili.base.RxAppCompatBaseActivity;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoDetails;
+import com.hotbitmapgg.ohmybilibili.event.AppBarStateChangeEvent;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
-import com.hotbitmapgg.ohmybilibili.utils.LogUtil;
+import com.hotbitmapgg.ohmybilibili.utils.SystemBarHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -68,17 +72,22 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
     @Bind(R.id.app_bar_layout)
     AppBarLayout mAppBarLayout;
 
+    @Bind(R.id.tv_player)
+    TextView mTvPlayer;
+
     private List<Fragment> fragments = new ArrayList<>();
 
     private List<String> titles = new ArrayList<>();
 
     private static String EXTRA_AV = "extra_av";
 
+    private static String EXTRA_IMG_URL = "extra_img_url";
+
     private int av;
 
-    private VideoDetailsPagerAdapter mAdapter;
-
     private VideoDetails mVideoDetails;
+
+    private String imgUrl;
 
 
     @Override
@@ -94,32 +103,49 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
 
         Intent intent = getIntent();
         if (intent != null)
+        {
             av = intent.getIntExtra(EXTRA_AV, -1);
+            imgUrl = intent.getStringExtra(EXTRA_IMG_URL);
+        }
+
+        Glide.with(VideoDetailsActivity.this)
+                .load(UrlHelper.getClearVideoPreviewUrl(imgUrl))
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.bili_default_image_tv)
+                .dontAnimate()
+                .into(mVideoPreview);
+
 
         getVideoInfo();
 
         mFAB.setClickable(false);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
         mFAB.setTranslationY(-getResources().getDimension(R.dimen.floating_action_button_size_half));
-        mFAB.setOnClickListener(new View.OnClickListener()
+        mFAB.setOnClickListener(v -> VideoPlayerActivity.launch(VideoDetailsActivity.this, av));
+
+        mAppBarLayout.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> setViewsTranslation(verticalOffset));
+
+        mAppBarLayout.addOnOffsetChangedListener(new AppBarStateChangeEvent()
         {
 
-            @Override
-            public void onClick(View v)
-            {
-
-                VideoPlayerActivity.launch(VideoDetailsActivity.this, av);
-            }
-        });
-
-        mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener()
-        {
 
             @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset)
+            public void onStateChanged(AppBarLayout appBarLayout, State state, int verticalOffset)
             {
 
-                setViewsTranslation(verticalOffset);
+                if (state == State.EXPANDED)
+                {
+                    //展开状态
+                    mTvPlayer.setVisibility(View.GONE);
+                } else if (state == State.COLLAPSED)
+                {
+                    //折叠状态
+                    mTvPlayer.setVisibility(View.VISIBLE);
+                } else
+                {
+                    mTvPlayer.setVisibility(View.GONE);
+                }
             }
         });
     }
@@ -128,6 +154,7 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
     public void initToolBar()
     {
 
+        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null)
@@ -138,8 +165,19 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
         //设置收缩后Toolbar上字体的颜色
         mCollapsingToolbarLayout.setCollapsedTitleTextColor(Color.WHITE);
 
+        //设置StatusBar透明
+        SystemBarHelper.immersiveStatusBar(this);
+        SystemBarHelper.setHeightAndPadding(this, mToolbar);
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+
+        getMenuInflater().inflate(R.menu.menu_video, menu);
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -166,12 +204,13 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
         }
     }
 
-    public static void launch(Activity activity, int aid)
+    public static void launch(Activity activity, int aid, String imgUrl)
     {
 
         Intent intent = new Intent(activity, VideoDetailsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra(EXTRA_AV, aid);
+        intent.putExtra(EXTRA_IMG_URL, imgUrl);
         activity.startActivity(intent);
     }
 
@@ -201,30 +240,18 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
 
         RetrofitHelper.getVideoDetailsApi()
                 .getVideoDetails(av)
-                .compose(this.<VideoDetails> bindToLifecycle())
+                .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<VideoDetails>()
-                {
+                .subscribe(videoDetails -> {
 
-                    @Override
-                    public void call(VideoDetails videoDetails)
-                    {
+                    mVideoDetails = videoDetails;
+                    finishGetTask();
+                }, throwable -> {
 
-                        mVideoDetails = videoDetails;
-                        finishGetTask();
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        mFAB.setClickable(false);
-                        mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.gray_20)));
-                        LogUtil.all("获取视频详情失败" + throwable.getMessage());
-                    }
+                    mFAB.setClickable(false);
+                    mFAB.setBackgroundTintList(ColorStateList.valueOf(
+                            getResources().getColor(R.color.gray_20)));
                 });
     }
 
@@ -234,14 +261,18 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
         mFAB.setClickable(true);
         mFAB.setBackgroundTintList(ColorStateList.valueOf(getResources().
                 getColor(R.color.colorPrimary)));
-        mCollapsingToolbarLayout.setTitle(mVideoDetails.getTitle());
+        mCollapsingToolbarLayout.setTitle("");
 
-        Glide.clear(mVideoPreview);
-        Glide.with(VideoDetailsActivity.this)
-                .load(UrlHelper.getClearVideoPreviewUrl(mVideoDetails.getPic()))
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .placeholder(R.drawable.bili_default_image_tv)
-                .into(mVideoPreview);
+        if (TextUtils.isEmpty(imgUrl))
+        {
+            Glide.with(VideoDetailsActivity.this)
+                    .load(UrlHelper.getClearVideoPreviewUrl(mVideoDetails.getPic()))
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
+                    .into(mVideoPreview);
+        }
 
         VideoInfoFragment mVideoInfoFragment = VideoInfoFragment
                 .newInstance(mVideoDetails, av);
@@ -260,11 +291,44 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
         titles.add("简介");
         titles.add("评论" + "(" + num + ")");
 
-        mAdapter = new VideoDetailsPagerAdapter(getSupportFragmentManager(), fragments, titles);
+        VideoDetailsPagerAdapter mAdapter = new VideoDetailsPagerAdapter(getSupportFragmentManager(), fragments, titles);
 
         mViewPager.setAdapter(mAdapter);
         mViewPager.setOffscreenPageLimit(2);
         mSlidingTabLayout.setViewPager(mViewPager);
+        measureTabLayoutTextWidth(0);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener()
+        {
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+            {
+
+            }
+
+            @Override
+            public void onPageSelected(int position)
+            {
+
+                measureTabLayoutTextWidth(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state)
+            {
+
+            }
+        });
+    }
+
+    private void measureTabLayoutTextWidth(int position)
+    {
+
+        String title = titles.get(position);
+        TextView titleView = mSlidingTabLayout.getTitleView(position);
+        TextPaint paint = titleView.getPaint();
+        float textWidth = paint.measureText(title);
+        mSlidingTabLayout.setIndicatorWidth(textWidth / 3);
     }
 
     public static class VideoDetailsPagerAdapter extends FragmentStatePagerAdapter
@@ -274,7 +338,7 @@ public class VideoDetailsActivity extends RxAppCompatBaseActivity
 
         private List<String> titles;
 
-        public VideoDetailsPagerAdapter(FragmentManager fm, List<Fragment> fragments, List<String> titles)
+        VideoDetailsPagerAdapter(FragmentManager fm, List<Fragment> fragments, List<String> titles)
         {
 
             super(fm);

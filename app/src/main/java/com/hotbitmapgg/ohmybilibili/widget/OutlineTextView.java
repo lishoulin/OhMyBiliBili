@@ -11,7 +11,10 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
-
+/**
+ * Created by hcc on 16/9/14 21:37
+ * 100332338@qq.com
+ */
 @SuppressLint("DrawAllocation")
 public class OutlineTextView extends TextView
 {
@@ -21,8 +24,6 @@ public class OutlineTextView extends TextView
     private TextPaint mTextPaintOutline;
 
     private String mText = "";
-
-    private int mAscent = 0;
 
     private float mBorderSize;
 
@@ -80,7 +81,7 @@ public class OutlineTextView extends TextView
     {
 
         super.setText(text);
-        mText = text.toString();
+        mText = text;
         requestLayout();
         invalidate();
     }
@@ -188,7 +189,7 @@ public class OutlineTextView extends TextView
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
 
-        mAscent = (int) mTextPaintOutline.ascent();
+        int mAscent = (int) mTextPaintOutline.ascent();
         if (specMode == MeasureSpec.EXACTLY)
         {
             result = specSize;

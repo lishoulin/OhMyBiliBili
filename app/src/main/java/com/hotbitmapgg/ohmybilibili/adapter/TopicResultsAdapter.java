@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.search.SearchResult;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -54,9 +54,10 @@ public class TopicResultsAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(topicBean.getCover()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mTopicPic);
 
             itemViewHolder.mTopicTitle.setText(topicBean.getTitle());
@@ -77,13 +78,13 @@ public class TopicResultsAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends ClickableViewHolder
     {
 
-        public ImageView mTopicPic;
+        ImageView mTopicPic;
 
-        public TextView mTopicTitle;
+        TextView mTopicTitle;
 
-        public TextView mUserName;
+        TextView mUserName;
 
-        public TextView mTopicDetails;
+        TextView mTopicDetails;
 
         public ItemViewHolder(View itemView)
         {

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.user.UserRecommend;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -28,8 +28,7 @@ public class VideoPartListAdapter extends AbsRecyclerViewAdapter
 
     private List<UserRecommend.AuthorData> datas = new ArrayList<>();
 
-    public VideoPartListAdapter(RecyclerView recyclerView,
-                                List<UserRecommend.AuthorData> datas)
+    public VideoPartListAdapter(RecyclerView recyclerView, List<UserRecommend.AuthorData> datas)
     {
 
         super(recyclerView);
@@ -56,9 +55,10 @@ public class VideoPartListAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(authorData.cover))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(mHolder.mVideoPic);
 
             mHolder.mVideoTitle.setText(authorData.title);
@@ -80,13 +80,13 @@ public class VideoPartListAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mVideoPic;
+        ImageView mVideoPic;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
-        public TextView mVideoPlayNum;
+        TextView mVideoPlayNum;
 
-        public TextView mVideoReviewNum;
+        TextView mVideoReviewNum;
 
         public ItemViewHolder(View itemView)
         {

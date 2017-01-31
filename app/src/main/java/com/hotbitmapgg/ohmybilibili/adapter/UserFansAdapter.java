@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.user.UserFans;
 import com.hotbitmapgg.ohmybilibili.widget.CircleImageView;
 
@@ -28,8 +28,7 @@ public class UserFansAdapter extends AbsRecyclerViewAdapter
     private List<UserFans.FansInfo> infos = new ArrayList<>();
 
 
-    public UserFansAdapter(RecyclerView recyclerView,
-                           List<UserFans.FansInfo> infos)
+    public UserFansAdapter(RecyclerView recyclerView, List<UserFans.FansInfo> infos)
     {
 
         super(recyclerView);
@@ -80,9 +79,9 @@ public class UserFansAdapter extends AbsRecyclerViewAdapter
     {
 
 
-        public CircleImageView mUserAvatar;
+        CircleImageView mUserAvatar;
 
-        public TextView mUserName;
+        TextView mUserName;
 
         public itemViewHolder(View itemView)
         {

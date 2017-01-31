@@ -13,7 +13,6 @@ import android.widget.RelativeLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.entity.BaseBanner;
 import com.hotbitmapgg.ohmybilibili.module.common.WebActivity;
 import com.hotbitmapgg.ohmybilibili.utils.DisplayUtil;
 
@@ -52,11 +51,9 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
 
     private List<ImageView> imageViewList;
 
-    private BannerAdapter bannerAdapter;
-
     private Context context;
 
-    private List<BaseBanner> bannerList;
+    private List<BannerEntity> bannerList;
 
     //选中显示Indicator
     private int selectRes = R.drawable.shape_dots_select;
@@ -87,8 +84,6 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
         imageViewList = new ArrayList<>();
     }
 
-    private LinearLayout.LayoutParams params;
-
     /**
      * 设置轮播间隔时间
      *
@@ -117,7 +112,7 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
     /**
      * 图片轮播需要传入参数
      */
-    public void build(List<BaseBanner> list)
+    public void build(List<BannerEntity> list)
     {
 
         destory();
@@ -148,7 +143,7 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
         {
             View dot = new View(context);
             dot.setBackgroundResource(unSelcetRes);
-            params = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     DisplayUtil.dp2px(context, 5),
                     DisplayUtil.dp2px(context, 5));
             params.leftMargin = 10;
@@ -162,10 +157,11 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
         for (int i = 0; i < bannerList.size(); i++)
         {
             ImageView mImageView = new ImageView(context);
+
             Glide.with(context)
                     .load(bannerList.get(i).img)
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .placeholder(R.drawable.bili_default_image_tv)
                     .into(mImageView);
             imageViewList.add(mImageView);
         }
@@ -213,7 +209,7 @@ public class BannerView extends RelativeLayout implements BannerAdapter.ViewPage
             }
         });
 
-        bannerAdapter = new BannerAdapter(imageViewList);
+        BannerAdapter bannerAdapter = new BannerAdapter(imageViewList);
         viewPager.setAdapter(bannerAdapter);
         bannerAdapter.notifyDataSetChanged();
         bannerAdapter.setmViewPagerOnItemClickListener(this);

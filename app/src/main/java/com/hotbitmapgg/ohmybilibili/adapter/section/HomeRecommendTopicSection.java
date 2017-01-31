@@ -1,6 +1,8 @@
 package com.hotbitmapgg.ohmybilibili.adapter.section;
 
+import android.app.Activity;
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
+import com.hotbitmapgg.ohmybilibili.module.common.WebActivity;
 import com.hotbitmapgg.ohmybilibili.widget.sectioned.StatelessSection;
 
 import butterknife.Bind;
@@ -30,7 +33,9 @@ public class HomeRecommendTopicSection extends StatelessSection
 
     private String title;
 
-    public HomeRecommendTopicSection(Context context, String imgUrl, String title)
+    private String link;
+
+    public HomeRecommendTopicSection(Context context, String imgUrl, String title, String link)
     {
 
         super(R.layout.layout_home_recommend_topic,
@@ -38,6 +43,7 @@ public class HomeRecommendTopicSection extends StatelessSection
         this.mContext = context;
         this.imgUrl = imgUrl;
         this.title = title;
+        this.link = link;
     }
 
     @Override
@@ -75,8 +81,10 @@ public class HomeRecommendTopicSection extends StatelessSection
 
         Glide.with(mContext)
                 .load(imgUrl)
+                .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.bili_default_image_tv)
+                .dontAnimate()
                 .into(topicViewHolder.mImageView);
 
         topicViewHolder.mTextView.setText(title);
@@ -84,6 +92,9 @@ public class HomeRecommendTopicSection extends StatelessSection
             topicViewHolder.mTextView.setVisibility(View.GONE);
         else
             topicViewHolder.mTextView.setVisibility(View.VISIBLE);
+
+        topicViewHolder.mCardView.setOnClickListener(v -> WebActivity.
+                launch((Activity) mContext, link, title));
     }
 
     static class TopicViewHolder extends RecyclerView.ViewHolder
@@ -95,7 +106,10 @@ public class HomeRecommendTopicSection extends StatelessSection
         @Bind(R.id.topic_title)
         TextView mTextView;
 
-        public TopicViewHolder(View itemView)
+        @Bind(R.id.card_view)
+        CardView mCardView;
+
+        TopicViewHolder(View itemView)
         {
 
             super(itemView);
@@ -103,10 +117,10 @@ public class HomeRecommendTopicSection extends StatelessSection
         }
     }
 
-    static class EmptyViewHolder extends RecyclerView.ViewHolder
+    private static class EmptyViewHolder extends RecyclerView.ViewHolder
     {
 
-        public EmptyViewHolder(View itemView)
+        EmptyViewHolder(View itemView)
         {
 
             super(itemView);

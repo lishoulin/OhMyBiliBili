@@ -1,23 +1,29 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar_layout"
-        layout="@layout/layout_toolbar" />
+    <include layout="@layout/layout_toolbar" />
+
 
     <FrameLayout
         android:id="@+id/live_layout"
         android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:layout_below="@+id/toolbar_layout"
+        android:layout_height="@dimen/live_video_player_height"
         android:background="@drawable/shadow_gradient_reserve">
+
 
         <SurfaceView
             android:id="@+id/video_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/default_tiny_padding"
+            android:src="@drawable/ic_watermark_live_large" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -38,10 +44,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/bili_anim"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/card_margin"
                 android:text="@string/video_init"
-                android:textColor="@android:color/black"
-                android:textSize="12sp" />
+                android:textColor="@color/font_normal"
+                android:textSize="@dimen/default_tiny_text_size" />
         </RelativeLayout>
 
         <ImageView
@@ -49,8 +55,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginBottom="60dp"
-            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="@dimen/live_button_margin_bottom"
+            android:layout_marginEnd="@dimen/card_margin"
             android:src="@drawable/ic_tv_play"
             android:visibility="gone" />
 
@@ -67,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:padding="10dp"
+                android:padding="@dimen/default_general_margin"
                 android:src="@drawable/ic_portrait_play" />
 
             <ImageView
@@ -75,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toStartOf="@+id/bottom_fullscreen"
-                android:padding="10dp"
+                android:padding="@dimen/default_general_margin"
                 android:src="@drawable/ic_live_player_send_gift" />
 
 
@@ -84,11 +90,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
-                android:padding="10dp"
+                android:padding="@dimen/default_general_margin"
                 android:src="@drawable/ic_live_palyer_zoom_in" />
         </RelativeLayout>
 
-        <com.hotbitmapgg.ohmybilibili.widget.LoveLikeLayout
+        <com.hotbitmapgg.ohmybilibili.widget.livelike.LoveLikeLayout
             android:id="@+id/love_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
@@ -98,18 +104,18 @@
     <RelativeLayout
         android:id="@+id/user_info_layout"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
-        android:layout_below="@+id/live_layout">
+        android:layout_height="@dimen/live_user_layout_height"
+        android:background="@color/card_view_background">
 
 
         <com.hotbitmapgg.ohmybilibili.widget.CircleImageView
             android:id="@+id/user_pic"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/user_avatar_size"
+            android:layout_height="@dimen/user_avatar_size"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
-            android:layout_marginStart="10dp"
-            android:padding="5dp"
+            android:layout_marginStart="@dimen/default_general_margin"
+            android:padding="@dimen/default_tiny_padding"
             android:src="@drawable/ico_user_default" />
 
         <TextView
@@ -117,11 +123,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/default_general_margin"
             android:layout_toEndOf="@+id/user_pic"
-            android:padding="5dp"
-            android:textColor="@color/colorPrimary"
-            android:textSize="12sp" />
+            android:padding="@dimen/default_tiny_padding"
+            android:textColor="@color/pink_text_color"
+            android:textSize="@dimen/default_tiny_text_size" />
 
 
         <TextView
@@ -129,33 +135,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="@dimen/default_general_margin"
             android:layout_toEndOf="@+id/user_name"
-            android:drawablePadding="5dp"
-            android:drawableStart="@drawable/ic_muti_people"
-            android:padding="5dp"
+            android:drawablePadding="@dimen/default_tiny_padding"
+            android:drawableStart="@drawable/ic_watching"
+            android:padding="@dimen/default_tiny_padding"
             android:textColor="@color/gray"
-            android:textSize="12sp" />
+            android:textSize="@dimen/default_tiny_text_size" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerInParent="true"
-            android:layout_marginEnd="10dp"
+            android:layout_marginEnd="@dimen/default_general_margin"
             android:background="@drawable/btn_pin_bg"
             android:gravity="center"
             android:text="@string/add_follow"
-            android:textColor="@color/colorPrimary" />
+            android:textColor="@color/focus_text_color" />
 
     </RelativeLayout>
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/user_info_layout"
+        android:layout_height="@dimen/line_height"
         android:background="@color/line_bg" />
 
 
-
-</RelativeLayout>
+</LinearLayout>

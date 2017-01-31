@@ -18,7 +18,6 @@ import com.hotbitmapgg.ohmybilibili.config.Secret;
 import com.hotbitmapgg.ohmybilibili.entity.bangumi.WeekDayBangumi;
 import com.hotbitmapgg.ohmybilibili.entity.bangumi.WeekDayBangumiResult;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
-import com.hotbitmapgg.ohmybilibili.utils.LogUtil;
 import com.hotbitmapgg.ohmybilibili.widget.CircleProgressView;
 import com.hotbitmapgg.ohmybilibili.widget.sectioned.SectionedRecyclerViewAdapter;
 
@@ -28,7 +27,6 @@ import java.util.List;
 import butterknife.Bind;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -128,7 +126,7 @@ public class WeekDayBangumiActivity extends RxAppCompatBaseActivity
         RetrofitHelper.getWeekDayBangumiApi()
                 .getWeekDayBangumi(type, wids[0], Secret.APP_KEY,
                         Long.toString(System.currentTimeMillis() / 1000))
-                .compose(this.<WeekDayBangumiResult> bindToLifecycle())
+                .compose(this.bindToLifecycle())
                 .flatMap(new Func1<WeekDayBangumiResult,Observable<WeekDayBangumiResult>>()
                 {
 
@@ -262,25 +260,12 @@ public class WeekDayBangumiActivity extends RxAppCompatBaseActivity
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<String>()
-                {
+                .subscribe(s -> {
 
-                    @Override
-                    public void call(String s)
-                    {
+                    finishGetTask();
+                }, throwable -> {
 
-                        finishGetTask();
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        LogUtil.all("番剧放送表加载失败" + throwable.getMessage());
-                        hideProgressBar();
-                    }
+                    hideProgressBar();
                 });
     }
 

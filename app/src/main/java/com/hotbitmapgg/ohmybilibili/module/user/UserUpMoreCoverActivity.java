@@ -3,28 +3,28 @@ package com.hotbitmapgg.ohmybilibili.module.user;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.ohmybilibili.adapter.UpMoreCoverAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.EndlessRecyclerOnScrollListener;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.HeaderViewRecyclerAdapter;
 import com.hotbitmapgg.ohmybilibili.base.RxAppCompatBaseActivity;
 import com.hotbitmapgg.ohmybilibili.entity.user.UserUpVideoInfo;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
-import com.hotbitmapgg.ohmybilibili.utils.LogUtil;
 import com.hotbitmapgg.ohmybilibili.widget.CircleProgressView;
-import com.hotbitmapgg.ohmybilibili.widget.recyclerview_helper.EndlessRecyclerOnScrollListener;
-import com.hotbitmapgg.ohmybilibili.widget.recyclerview_helper.HeaderViewRecyclerAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -82,8 +82,7 @@ public class UserUpMoreCoverActivity extends RxAppCompatBaseActivity
             mid = intent.getIntExtra(EXTRA_MID, -1);
         }
 
-        mCircleProgressView.setVisibility(View.VISIBLE);
-        mCircleProgressView.spin();
+        showProgressBar();
         getUserVideoList();
         initRecyclerView();
     }
@@ -116,29 +115,20 @@ public class UserUpMoreCoverActivity extends RxAppCompatBaseActivity
     public void initToolBar()
     {
 
-        mToolbar.setNavigationIcon(R.drawable.action_button_back_pressed_light);
         mToolbar.setTitle(uName + "的投稿");
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-
-                onBackPressed();
-            }
-        });
+        setSupportActionBar(mToolbar);
+        ActionBar supportActionBar = getSupportActionBar();
+        if (supportActionBar != null)
+            supportActionBar.setDisplayHomeAsUpEnabled(true);
     }
 
-
-    public static void launch(Activity activity, String name, int mid)
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
     {
 
-        Intent intent = new Intent(activity, UserUpMoreCoverActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra(EXTRA_USER_NAME, name);
-        intent.putExtra(EXTRA_MID, mid);
-        activity.startActivity(intent);
+        if (item.getItemId() == android.R.id.home)
+            onBackPressed();
+        return super.onOptionsItemSelected(item);
     }
 
 
@@ -147,44 +137,30 @@ public class UserUpMoreCoverActivity extends RxAppCompatBaseActivity
 
         RetrofitHelper.getUserUpVideoListApi()
                 .getUserUpVideos(mid, pageNum, pageSize)
-                .compose(this.<UserUpVideoInfo> bindToLifecycle())
+                .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<UserUpVideoInfo>()
-                {
+                .subscribe(userUpVideoInfo -> {
 
-                    @Override
-                    public void call(UserUpVideoInfo userUpVideoInfo)
-                    {
-
-                        List<UserUpVideoInfo.VlistBean> vlist =
-                                userUpVideoInfo.getVlist();
-                        if (vlist.size() < pageSize)
-                            loadMoreView.setVisibility(View.GONE);
-
-                        userVideoList.addAll(vlist);
-                        finishTask();
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        LogUtil.all("用户上传更多视频获取失败" + throwable.getMessage());
+                    List<UserUpVideoInfo.VlistBean> vlist =
+                            userUpVideoInfo.getVlist();
+                    if (vlist.size() < pageSize)
                         loadMoreView.setVisibility(View.GONE);
-                        mCircleProgressView.stopSpinning();
-                        mCircleProgressView.setVisibility(View.GONE);
-                    }
+
+                    userVideoList.addAll(vlist);
+                    finishTask();
+                }, throwable -> {
+
+                    loadMoreView.setVisibility(View.GONE);
+                    hideProgressBar();
                 });
     }
 
     private void finishTask()
     {
 
-        mCircleProgressView.stopSpinning();
-        mCircleProgressView.setVisibility(View.GONE);
+        hideProgressBar();
+        loadMoreView.setVisibility(View.GONE);
 
         if (pageNum * pageSize - pageSize - 1 > 0)
             mAdapter.notifyItemRangeChanged(pageNum * pageSize - pageSize - 1, pageSize);
@@ -199,5 +175,29 @@ public class UserUpMoreCoverActivity extends RxAppCompatBaseActivity
                 .inflate(R.layout.layout_load_more, mRecycleView, false);
         mHeaderViewRecyclerAdapter.addFooterView(loadMoreView);
         loadMoreView.setVisibility(View.GONE);
+    }
+
+    public void showProgressBar()
+    {
+
+        mCircleProgressView.setVisibility(View.VISIBLE);
+        mCircleProgressView.spin();
+    }
+
+    public void hideProgressBar()
+    {
+
+        mCircleProgressView.setVisibility(View.GONE);
+        mCircleProgressView.stopSpinning();
+    }
+
+    public static void launch(Activity activity, String name, int mid)
+    {
+
+        Intent intent = new Intent(activity, UserUpMoreCoverActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(EXTRA_USER_NAME, name);
+        intent.putExtra(EXTRA_MID, mid);
+        activity.startActivity(intent);
     }
 }

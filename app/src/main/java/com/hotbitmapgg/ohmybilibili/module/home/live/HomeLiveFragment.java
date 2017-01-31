@@ -10,8 +10,8 @@ import android.view.View;
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.ohmybilibili.adapter.BiliBiliLiveRecyclerAdapter;
 import com.hotbitmapgg.ohmybilibili.base.RxLazyFragment;
-import com.hotbitmapgg.ohmybilibili.entity.live.Result;
 import com.hotbitmapgg.ohmybilibili.entity.live.LiveIndex;
+import com.hotbitmapgg.ohmybilibili.entity.live.Result;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
 import com.hotbitmapgg.ohmybilibili.utils.SnackbarUtil;
 import com.hotbitmapgg.ohmybilibili.widget.CustomEmptyView;
@@ -19,7 +19,6 @@ import com.hotbitmapgg.ohmybilibili.widget.CustomEmptyView;
 import butterknife.Bind;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -75,13 +74,12 @@ public class HomeLiveFragment extends RxLazyFragment
             return;
 
         showProgressBar();
+        initRecyclerView();
         isPrepared = false;
     }
 
-    private void showProgressBar()
+    private void initRecyclerView()
     {
-
-        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         mBiliBiliLiveRecyclerAdapter = new BiliBiliLiveRecyclerAdapter(getActivity());
         mRecyclerView.setAdapter(mBiliBiliLiveRecyclerAdapter);
         GridLayoutManager layout = new GridLayoutManager(getActivity(), 12);
@@ -98,27 +96,18 @@ public class HomeLiveFragment extends RxLazyFragment
         });
 
         mRecyclerView.setLayoutManager(layout);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-        {
+    }
 
-            @Override
-            public void onRefresh()
-            {
+    private void showProgressBar()
+    {
 
-                getBiliBiliLive();
-            }
-        });
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        mSwipeRefreshLayout.setOnRefreshListener(this::getBiliBiliLive);
 
-        mSwipeRefreshLayout.post(new Runnable()
-        {
+        mSwipeRefreshLayout.post(() -> {
 
-            @Override
-            public void run()
-            {
-
-                mSwipeRefreshLayout.setRefreshing(true);
-                getBiliBiliLive();
-            }
+            mSwipeRefreshLayout.setRefreshing(true);
+            getBiliBiliLive();
         });
     }
 
@@ -128,7 +117,7 @@ public class HomeLiveFragment extends RxLazyFragment
 
         RetrofitHelper.getBiliBiliLiveApi()
                 .getLiveIndex()
-                .compose(this.<Result<LiveIndex>> bindToLifecycle())
+                .compose(this.bindToLifecycle())
                 .flatMap(new Func1<Result<LiveIndex>,Observable<LiveIndex>>()
                 {
 
@@ -145,24 +134,9 @@ public class HomeLiveFragment extends RxLazyFragment
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<LiveIndex>()
-                {
+                .subscribe(this::finishTask, throwable -> {
 
-                    @Override
-                    public void call(LiveIndex liveIndex)
-                    {
-
-                        finishTask(liveIndex);
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        initEmptyView();
-                    }
+                    initEmptyView();
                 });
     }
 
@@ -171,24 +145,18 @@ public class HomeLiveFragment extends RxLazyFragment
 
         mSwipeRefreshLayout.setRefreshing(false);
         mCustomEmptyView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.GONE);
         mCustomEmptyView.setEmptyImage(R.drawable.img_tips_error_load_error);
         mCustomEmptyView.setEmptyText("加载失败~(≧▽≦)~啦啦啦.");
         SnackbarUtil.showMessage(mRecyclerView, "数据加载失败,请重新加载或者检查网络是否链接");
-        mCustomEmptyView.reload(new CustomEmptyView.ReloadOnClickListener()
-        {
-
-            @Override
-            public void reloadClick()
-            {
-                showProgressBar();
-            }
-        });
+        mCustomEmptyView.reload(this::showProgressBar);
     }
 
     public void hideEmptyView()
     {
 
         mCustomEmptyView.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.VISIBLE);
     }
 
 

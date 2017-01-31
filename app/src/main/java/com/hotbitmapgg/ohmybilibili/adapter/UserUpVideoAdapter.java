@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.user.UserUpVideoInfo;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -28,8 +28,7 @@ public class UserUpVideoAdapter extends AbsRecyclerViewAdapter
 
     private List<UserUpVideoInfo.VlistBean> parts = new ArrayList<>();
 
-    public UserUpVideoAdapter(RecyclerView recyclerView,
-                              List<UserUpVideoInfo.VlistBean> parts)
+    public UserUpVideoAdapter(RecyclerView recyclerView, List<UserUpVideoInfo.VlistBean> parts)
     {
 
         super(recyclerView);
@@ -56,9 +55,10 @@ public class UserUpVideoAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(vlistBean.getPic()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoPic);
 
 

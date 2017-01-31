@@ -41,6 +41,7 @@
             android:name=".module.common.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
+            android:theme="@style/MainActivityColorTranslucentTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
 
@@ -64,14 +65,12 @@
         <!-- 视频详情界面 -->
         <activity
             android:name=".module.video.VideoDetailsActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ColorTranslucentTheme" />
+            android:screenOrientation="portrait" />
 
         <!-- bilibili用户界面 -->
         <activity
             android:name=".module.user.UserInfoActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ColorTranslucentTheme" />
+            android:screenOrientation="portrait" />
 
 
         <!-- 专题详情界面 -->
@@ -133,7 +132,7 @@
 
         <!--热门视频排行榜界面-->
         <activity
-            android:name=".module.home.discover.HotVideoIndexActivity"
+            android:name=".module.home.recommend.HotVideoIndexActivity"
             android:screenOrientation="portrait" />
 
         <!--全站搜索界面-->
@@ -142,7 +141,34 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Search" />
 
-        <!--新的播放器界面-->
+
+        <!--全区排行榜界面-->
+        <activity
+            android:name=".module.home.discover.AllRankActivity"
+            android:screenOrientation="portrait" />
+
+        <!--原创排行榜界面-->
+        <activity
+            android:name=".module.home.discover.OriginalRankActivity"
+            android:screenOrientation="portrait" />
+
+
+        <!--分季全部新番界面-->
+        <activity
+            android:name=".module.home.bangumi.SeasonNewBangumiActivity"
+            android:screenOrientation="portrait" />
+
+        <!--新番连载全部界面-->
+        <activity
+            android:name=".module.home.bangumi.NewBangumiSerialActivity"
+            android:screenOrientation="portrait" />
+
+        <!--番剧详情界面-->
+        <activity
+            android:name=".module.home.bangumi.BangumiDetailsActivity"
+            android:screenOrientation="portrait" />
+
+        <!--播放器界面-->
         <activity
             android:name=".module.video.VideoPlayerActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|keyboard|keyboardHidden|navigation"

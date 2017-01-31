@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.user.UserUpVideoInfo;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -28,8 +28,7 @@ public class UpMoreCoverAdapter extends AbsRecyclerViewAdapter
 
     private List<UserUpVideoInfo.VlistBean> userVideoList = new ArrayList<>();
 
-    public UpMoreCoverAdapter(RecyclerView recyclerView,
-                              List<UserUpVideoInfo.VlistBean> userVideoList)
+    public UpMoreCoverAdapter(RecyclerView recyclerView, List<UserUpVideoInfo.VlistBean> userVideoList)
     {
 
         super(recyclerView);
@@ -56,9 +55,10 @@ public class UpMoreCoverAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(vlistBean.getPic()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoPic);
 
             itemViewHolder.mVideoTitle.setText(vlistBean.getTitle());
@@ -79,15 +79,15 @@ public class UpMoreCoverAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mVideoPic;
+        ImageView mVideoPic;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
-        public TextView mVideoUserInfo;
+        TextView mVideoUserInfo;
 
-        public TextView mVideoPlayNum;
+        TextView mVideoPlayNum;
 
-        public TextView mVideoReviewNum;
+        TextView mVideoReviewNum;
 
         public ItemViewHolder(View itemView)
         {

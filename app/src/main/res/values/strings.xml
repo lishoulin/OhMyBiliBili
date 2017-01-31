@@ -2,11 +2,11 @@
 <resources>
 
     <string-array name="sections">
+        <item>@string/section_live</item>
         <item>@string/section_recommend</item>
         <item>@string/section_bangumi</item>
-        <item>@string/section_live</item>
-        <item>@string/section_focus</item>
         <item>@string/section_more</item>
+        <item>@string/section_focus</item>
         <item>@string/section_discover</item>
     </string-array>
 
@@ -38,17 +38,17 @@
     <string name="everyone_in_the_search">大家都在搜</string>
     <string name="look_more">查看更多</string>
     <string name="interest_in_circle">兴趣圈</string>
+    <string name="topic_center">话题中心</string>
     <string name="original_rank">原创排行榜</string>
     <string name="all_rank">全区排行榜</string>
     <string name="game_center">游戏中心</string>
-    <string name="overseas_travel">海外游</string>
     <string name="discover_msg_1">萌系少女战舰养成!</string>
-    <string name="discover_msg_2">和漫游娘一起游遍日本!</string>
     <string name="check_update">检查更新</string>
     <string name="logout">退出登录</string>
     <string name="introduction">简介</string>
     <string name="coin">投硬币</string>
     <string name="collection">收藏</string>
+    <string name="bangumi_follow">追番</string>
     <string name="cache">缓存</string>
     <string name="charging">请赐予我电量吧 !</string>
     <string name="charg">充电</string>
@@ -61,13 +61,29 @@
     <string name="time_line">放送表</string>
     <string name="index">索引</string>
     <string name="bangumi_recommend">番剧推荐</string>
-    <string name="two_bangumi">二次元新番</string>
+    <string name="new_bangumi_serial">新番连载</string>
+    <string name="season_new_bangumi">4月新番</string>
+    <string name="season_list">分季列表</string>
+    <string name="more_new_bangumi_serial">所有连载</string>
     <string name="change_recommend">换一波推荐</string>
     <string name="rank">排行榜</string>
     <string name="topic">话题</string>
     <string name="load_more">正在加载…</string>
     <string name="search_hint">搜索视频,番剧,up主或av号</string>
     <string name="danmaku_switch">弹幕开关</string>
+    <string name="play_immediately">立即播放</string>
+    <string name="activity_center">活动中心</string>
+    <string name="dynamic">动态</string>
+    <string name="not_watch">尚未观看</string>
+    <string name="selection">选集</string>
+    <string name="please_contract_me">请承包我吧</string>
+    <string name="have_been_contracting_out_of_me">已有383人承包了这部番</string>
+    <string name="contract">承包</string>
+    <string name="contract_text">等34人七日内承包了这部番</string>
+    <string name="look_top_list">查看榜单</string>
+    <string name="commend">评论</string>
+    <string name="more_commend">更多评论</string>
+    <string name="more_commend_arrow">更多评论 >></string>
 
 
     <!--Vitamio Strings-->
@@ -99,17 +115,16 @@
     <string name="about_open_source_lis">感谢开源贡献</string>
     <string name="about_introduce_and_help">介绍与帮助</string>
     <string name="about_open_source_libraries_list">
-        com.github.ozodrukh:CircularReveal:1.1.0@aar
-        \ncom.squareup.picasso:picasso:2.5.2
-        \ncn.bmob.android:bmob-sdk:3.4.6
-        \ncom.flyco.tablayout:FlycoTabLayout_Lib:2.0.0@aar
-        ncom.zhy:flowlayout-lib:1.0.1
-        \ncom.jakewharton:butterknife:7.0.1
-        \ncom.squareup.okhttp3:okhttp:3.2.0
-        \nio.reactivex:rxandroid:1.1.0
-        \nio.reactivex:rxjava:1.1.0
-        \ncom.squareup.retrofit:retrofit:2.0.0-beta1
-        \ntv.danmaku.ijk.media:ijkplayer-java:0.4.5.1</string>
+        com.flyco.tablayout:FlycoTabLayout_Lib:2.0.0@aar
+        \n\ncom.zhy:flowlayout-lib:1.0.1
+        \n\ncom.jakewharton:butterknife:7.0.1
+        \n\ncom.squareup.okhttp3:okhttp:3.2.0
+        \n\nio.reactivex:rxandroid:1.1.0
+        \n\nio.reactivex:rxjava:1.1.0
+        \n\ncom.squareup.retrofit:retrofit:2.0.0-beta1
+        \n\ntv.danmaku.ijk.media:ijkplayer-java:0.4.5.1
+        \n\ncom.github.bumptech.glide:glide:3.7.0
+        \n\ntv.danmaku.ijk.media:ijkplayer-java:0.6.0</string>
     <string name="about_function">实现功能</string>
     <string name="about_function_list">
         * 首页推荐\n* 首页番剧\n* 首页直播

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.recommended.RecommendInfo;
 
 import java.util.List;
@@ -26,8 +26,7 @@ public class ActivityCenterRecyclerAdapter extends AbsRecyclerViewAdapter
 
     private List<RecommendInfo.ResultBean.BodyBean> activitys;
 
-    public ActivityCenterRecyclerAdapter(RecyclerView recyclerView,
-                                         List<RecommendInfo.ResultBean.BodyBean> activitys)
+    public ActivityCenterRecyclerAdapter(RecyclerView recyclerView, List<RecommendInfo.ResultBean.BodyBean> activitys)
     {
 
         super(recyclerView);
@@ -53,10 +52,12 @@ public class ActivityCenterRecyclerAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(activitys.get(position).getCover())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoImg);
+
             itemViewHolder.mVideoTitle.setText(activitys.get(position).getTitle());
         }
     }
@@ -71,9 +72,9 @@ public class ActivityCenterRecyclerAdapter extends AbsRecyclerViewAdapter
     private class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mVideoImg;
+        ImageView mVideoImg;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
 
         public ItemViewHolder(View itemView)

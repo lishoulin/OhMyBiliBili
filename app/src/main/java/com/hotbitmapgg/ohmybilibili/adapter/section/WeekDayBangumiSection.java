@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -73,32 +74,28 @@ public class WeekDayBangumiSection extends StatelessSection
         ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
         final WeekDayBangumi weekDayBangumi = weekDayBangumis.get(position);
         itemViewHolder.mTitle.setText(weekDayBangumi.title);
+        itemViewHolder.mUpdateTime.setText(weekDayBangumi.lastupdate_at);
+        itemViewHolder.mCount.setText("第" + weekDayBangumi.bgmcount + "话");
+
         if (!TextUtils.isEmpty(weekDayBangumi.cover))
         {
             Glide.with(mContext)
                     .load(Uri.parse(weekDayBangumi.cover))
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mImageView);
         } else
         {
             itemViewHolder.mImageView.setImageResource(R.drawable.bili_default_image_tv);
         }
 
-        itemViewHolder.mCardView.setOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-
-                SpecialDetailsActivity.launch(
-                        (Activity) mContext,
-                        weekDayBangumi.spid,
-                        weekDayBangumi.title,
-                        weekDayBangumi.season_id);
-            }
-        });
+        itemViewHolder.mCardView.setOnClickListener(v -> SpecialDetailsActivity.launch(
+                (Activity) mContext,
+                weekDayBangumi.spid,
+                weekDayBangumi.title,
+                weekDayBangumi.season_id));
     }
 
     @Override
@@ -113,7 +110,7 @@ public class WeekDayBangumiSection extends StatelessSection
     {
 
         HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
-        Drawable drawable = mContext.getDrawable(iconRes);
+        Drawable drawable = ContextCompat.getDrawable(mContext, iconRes);
         if (drawable != null)
             drawable.setBounds(0, 0, drawable.getMinimumWidth(), drawable.getMinimumHeight());
         headerViewHolder.mWeekDay.setCompoundDrawables(drawable, null, null, null);
@@ -126,7 +123,7 @@ public class WeekDayBangumiSection extends StatelessSection
         @Bind(R.id.item_weekday)
         TextView mWeekDay;
 
-        public HeaderViewHolder(View view)
+        HeaderViewHolder(View view)
         {
 
             super(view);
@@ -145,6 +142,12 @@ public class WeekDayBangumiSection extends StatelessSection
 
         @Bind(R.id.card_view)
         CardView mCardView;
+
+        @Bind(R.id.item_update_time)
+        TextView mUpdateTime;
+
+        @Bind(R.id.item_count)
+        TextView mCount;
 
         public ItemViewHolder(View view)
         {

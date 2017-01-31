@@ -11,14 +11,12 @@ import android.widget.TextView;
 
 import com.hotbitmapgg.ohmybilibili.R;
 import com.hotbitmapgg.ohmybilibili.adapter.VideoAlikeListAdapter;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.base.RxLazyFragment;
 import com.hotbitmapgg.ohmybilibili.config.Secret;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoAlikeInfo;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoAlikeResult;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoDetails;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
-import com.hotbitmapgg.ohmybilibili.utils.LogUtil;
 import com.hotbitmapgg.ohmybilibili.widget.UserTagView;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
@@ -32,10 +30,7 @@ import java.util.Random;
 
 import butterknife.Bind;
 import butterknife.OnClick;
-import okhttp3.ResponseBody;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -58,9 +53,6 @@ public class VideoInfoFragment extends RxLazyFragment
 
     @Bind(R.id.tv_description)
     TextView mDescText;
-
-    @Bind(R.id.tv_created_at)
-    TextView mCreatedAtText;
 
     @Bind(R.id.author_tag)
     UserTagView mAuthorTagView;
@@ -88,8 +80,6 @@ public class VideoInfoFragment extends RxLazyFragment
     private static final String EXTRA_INFO = "extra_info";
 
     private List<VideoAlikeInfo> mUserVideos = new ArrayList<>();
-
-    private VideoAlikeListAdapter mVideoAlikeListAdapter;
 
     private VideoDetails mVideoDetails;
 
@@ -136,7 +126,6 @@ public class VideoInfoFragment extends RxLazyFragment
         mPlayTimeText.setText(String.format(getString(R.string.info_play_times_format), Integer.valueOf(mVideoDetails.getPlay())));
         mReviewCountText.setText(String.format(getString(R.string.info_reviews_format), Integer.valueOf(mVideoDetails.getVideo_review())));
         mDescText.setText(mVideoDetails.getDescription());
-        mCreatedAtText.setText(mVideoDetails.getCreated_at());
         mAuthorTagView.setUpWithInfo(getActivity(),
                 mVideoDetails.getAuthor(),
                 Integer.valueOf(mVideoDetails.getMid()), mVideoDetails.getFace());
@@ -145,23 +134,17 @@ public class VideoInfoFragment extends RxLazyFragment
         mFavNum.setText(mVideoDetails.getFavorites());
         mCoinNum.setText(mVideoDetails.getCoins());
 
-        mMoreVideo.setOnClickListener(new View.OnClickListener()
-        {
+        mMoreVideo.setOnClickListener(v -> {
 
-            @Override
-            public void onClick(View v)
-            {
-
-                Intent mIntent = new Intent(getActivity(), VideoPartsListMoreActivity.class);
-                mIntent.putExtra("aid", av + "");
-                startActivity(mIntent);
-            }
+            Intent mIntent = new Intent(getActivity(), VideoPartsListMoreActivity.class);
+            mIntent.putExtra("aid", av + "");
+            startActivity(mIntent);
         });
 
         setVideoTags();
 
         //获取该用户推荐的视频列表
-        getVideoListPartsByTid(mVideoDetails.getTid() + "");
+        getVideoListPartsByTid(String.valueOf(mVideoDetails.getTid()));
     }
 
     private void setVideoTags()
@@ -202,47 +185,29 @@ public class VideoInfoFragment extends RxLazyFragment
                 .getPartitionMore(tid, anInt,
                         10, 0, Secret.APP_KEY,
                         Long.toString(System.currentTimeMillis() / 1000))
-                .compose(this.<ResponseBody> bindToLifecycle())
-                .map(new Func1<ResponseBody,VideoAlikeResult>()
-                {
+                .compose(this.bindToLifecycle())
+                .map(responseBody -> {
 
-                    @Override
-                    public VideoAlikeResult call(ResponseBody responseBody)
+                    try
                     {
-
-                        try
-                        {
-                            return VideoAlikeResult.createFromJson(responseBody.string());
-                        } catch (IOException e)
-                        {
-                            e.printStackTrace();
-                            return null;
-                        }
+                        return VideoAlikeResult.createFromJson(responseBody.string());
+                    } catch (IOException e)
+                    {
+                        e.printStackTrace();
+                        return null;
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<VideoAlikeResult>()
-                {
+                .subscribe(videoAlikeResult -> {
 
-                    @Override
-                    public void call(VideoAlikeResult videoAlikeResult)
-                    {
+                    List<VideoAlikeInfo> datas = videoAlikeResult.lists;
+                    mUserVideos.addAll(datas);
 
-                        List<VideoAlikeInfo> datas = videoAlikeResult.lists;
-                        mUserVideos.addAll(datas);
+                    finishPartsGetTask();
+                }, throwable -> {
 
-                        finishPartsGetTask();
-                    }
-                }, new Action1<Throwable>()
-                {
 
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        LogUtil.all("根据类型查询相关视频失败" + throwable.getMessage());
-                    }
                 });
     }
 
@@ -250,22 +215,16 @@ public class VideoInfoFragment extends RxLazyFragment
     private void finishPartsGetTask()
     {
 
-        mVideoAlikeListAdapter = new VideoAlikeListAdapter(mVideoPartList, mUserVideos);
+        VideoAlikeListAdapter mVideoAlikeListAdapter = new VideoAlikeListAdapter(mVideoPartList, mUserVideos);
         mVideoPartList.setHasFixedSize(false);
         mVideoPartList.setNestedScrollingEnabled(false);
         mVideoPartList.setLayoutManager(new LinearLayoutManager(getActivity()));
         mVideoPartList.setAdapter(mVideoAlikeListAdapter);
-        mVideoAlikeListAdapter.setOnItemClickListener(new AbsRecyclerViewAdapter.OnItemClickListener()
-        {
+        mVideoAlikeListAdapter.setOnItemClickListener((position, holder) -> {
 
-            @Override
-            public void onItemClick(int position, AbsRecyclerViewAdapter.ClickableViewHolder holder)
-            {
-
-                getActivity().finish();
-                VideoAlikeInfo videoAlikeInfo = mUserVideos.get(position);
-                VideoDetailsActivity.launch(getActivity(), videoAlikeInfo.aid);
-            }
+            getActivity().finish();
+            VideoAlikeInfo videoAlikeInfo = mUserVideos.get(position);
+            VideoDetailsActivity.launch(getActivity(), videoAlikeInfo.aid, videoAlikeInfo.pic);
         });
     }
 
@@ -276,7 +235,7 @@ public class VideoInfoFragment extends RxLazyFragment
         Intent intent = new Intent(Intent.ACTION_SEND);
         intent.setType("text/plain");
         intent.putExtra(Intent.EXTRA_SUBJECT, "分享");
-        intent.putExtra(Intent.EXTRA_TEXT, "来自「哔哩哔哩」的分享:" + mVideoDetails.describeContents());
+        intent.putExtra(Intent.EXTRA_TEXT, "来自「哔哩哔哩」的分享:" + mVideoDetails.getDescription());
         startActivity(Intent.createChooser(intent, mVideoDetails.getTitle()));
     }
 
@@ -286,5 +245,4 @@ public class VideoInfoFragment extends RxLazyFragment
     {
 
     }
-
 }

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoAlikeInfo;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -55,9 +55,10 @@ public class VideoAlikeListAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(videoAlikeInfo.pic))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoPic);
 
             itemViewHolder.mVideoTitle.setText(videoAlikeInfo.title);
@@ -79,15 +80,15 @@ public class VideoAlikeListAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mVideoPic;
+        ImageView mVideoPic;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
-        public TextView mVideoPlayNum;
+        TextView mVideoPlayNum;
 
-        public TextView mVideoReviewNum;
+        TextView mVideoReviewNum;
 
-        public TextView mUserName;
+        TextView mUserName;
 
         public ItemViewHolder(View itemView)
         {

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.search.SearchResult;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 
@@ -27,8 +27,7 @@ public class ComprehensiveResultsAdapter extends AbsRecyclerViewAdapter
 
     private List<SearchResult.ResultBean.VideoBean> videos;
 
-    public ComprehensiveResultsAdapter(RecyclerView recyclerView,
-                                       List<SearchResult.ResultBean.VideoBean> videos)
+    public ComprehensiveResultsAdapter(RecyclerView recyclerView, List<SearchResult.ResultBean.VideoBean> videos)
     {
 
         super(recyclerView);
@@ -56,9 +55,10 @@ public class ComprehensiveResultsAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(UrlHelper.getClearVideoPreviewUrl(videoBean.getPic()))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoPic);
 
             itemViewHolder.mVideoTitle.setText(videoBean.getTitle());
@@ -80,15 +80,15 @@ public class ComprehensiveResultsAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends ClickableViewHolder
     {
 
-        public ImageView mVideoPic;
+        ImageView mVideoPic;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
-        public TextView mVideoPlayNum;
+        TextView mVideoPlayNum;
 
-        public TextView mVideoReviewNum;
+        TextView mVideoReviewNum;
 
-        public TextView mUserName;
+        TextView mUserName;
 
         public ItemViewHolder(View itemView)
         {

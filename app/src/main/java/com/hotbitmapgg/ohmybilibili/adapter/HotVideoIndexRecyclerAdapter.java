@@ -11,10 +11,9 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoItemInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,10 +25,9 @@ import java.util.List;
 public class HotVideoIndexRecyclerAdapter extends AbsRecyclerViewAdapter
 {
 
-    List<VideoItemInfo> videoItemInfos = new ArrayList<>();
+    private List<VideoItemInfo> videoItemInfos;
 
-    public HotVideoIndexRecyclerAdapter(RecyclerView recyclerView,
-                                        List<VideoItemInfo> videoItemInfos)
+    public HotVideoIndexRecyclerAdapter(RecyclerView recyclerView, List<VideoItemInfo> videoItemInfos)
     {
 
         super(recyclerView);
@@ -42,7 +40,7 @@ public class HotVideoIndexRecyclerAdapter extends AbsRecyclerViewAdapter
 
         bindContext(parent.getContext());
         return new ItemViewHolder(LayoutInflater.from(getContext())
-                .inflate(R.layout.item_video_card, parent, false));
+                .inflate(R.layout.item_rank_video, parent, false));
     }
 
     @Override
@@ -56,15 +54,41 @@ public class HotVideoIndexRecyclerAdapter extends AbsRecyclerViewAdapter
             itemViewHolder.mVideoTitle.setText(videoItemInfo.title);
             itemViewHolder.mVideoPlayNum.setText(videoItemInfo.play);
             itemViewHolder.mVideoReviewCount.setText(String.valueOf(videoItemInfo.video_review));
+            itemViewHolder.mUserName.setText(videoItemInfo.author);
+            itemViewHolder.mSortNum.setText(String.valueOf(position + 1));
+            setSortNumTextSize(itemViewHolder, position);
 
             Glide.with(getContext())
                     .load(Uri.parse(videoItemInfo.pic))
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mVideoImg);
         }
         super.onBindViewHolder(holder, position);
+    }
+
+    private void setSortNumTextSize(ItemViewHolder itemViewHolder, int position)
+    {
+
+        if (position == 0)
+        {
+            itemViewHolder.mSortNum.setTextSize(24);
+            itemViewHolder.mSortNum.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+        } else if (position == 1)
+        {
+            itemViewHolder.mSortNum.setTextSize(22);
+            itemViewHolder.mSortNum.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+        } else if (position == 2)
+        {
+            itemViewHolder.mSortNum.setTextSize(18);
+            itemViewHolder.mSortNum.setTextColor(getContext().getResources().getColor(R.color.colorPrimary));
+        } else
+        {
+            itemViewHolder.mSortNum.setTextSize(16);
+            itemViewHolder.mSortNum.setTextColor(getContext().getResources().getColor(R.color.black_alpha_30));
+        }
     }
 
     @Override
@@ -78,13 +102,17 @@ public class HotVideoIndexRecyclerAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mVideoImg;
+        ImageView mVideoImg;
 
-        public TextView mVideoTitle;
+        TextView mVideoTitle;
 
-        public TextView mVideoPlayNum;
+        TextView mVideoPlayNum;
 
-        public TextView mVideoReviewCount;
+        TextView mVideoReviewCount;
+
+        TextView mSortNum;
+
+        TextView mUserName;
 
         public ItemViewHolder(View itemView)
         {
@@ -94,6 +122,8 @@ public class HotVideoIndexRecyclerAdapter extends AbsRecyclerViewAdapter
             mVideoTitle = $(R.id.item_title);
             mVideoPlayNum = $(R.id.item_play);
             mVideoReviewCount = $(R.id.item_review);
+            mSortNum = $(R.id.item_sort_num);
+            mUserName = $(R.id.item_user_name);
         }
     }
 }

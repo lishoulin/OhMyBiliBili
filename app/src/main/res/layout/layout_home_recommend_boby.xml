@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.CardView
-    android:id="@+id/card_view"
+<android.support.v7.widget.CardView android:id="@+id/card_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -8,23 +7,20 @@
     android:layout_margin="@dimen/card_margin"
     android:clickable="true"
     android:foreground="?attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/card_view_background_dark"
+    app:cardBackgroundColor="@color/card_view_background"
     app:cardCornerRadius="@dimen/card_corner_radius"
     app:cardElevation="@dimen/card_elevation">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        android:minHeight="190dp"
-        android:orientation="vertical">
+        android:minHeight="@dimen/card_default_height">
 
         <ImageView
             android:id="@+id/video_preview"
             android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:adjustViewBounds="true"
-            android:scaleType="centerCrop" />
+            android:layout_height="@dimen/card_image_default_height"
+            android:scaleType="center" />
 
         <LinearLayout
             android:id="@+id/layout_title"
@@ -42,7 +38,7 @@
                 android:lineSpacingExtra="2dp"
                 android:maxLines="2"
                 android:textColor="@color/font_normal"
-                android:textSize="14sp" />
+                android:textSize="@dimen/default_small_text_size" />
         </LinearLayout>
 
         <LinearLayout
@@ -52,12 +48,12 @@
             android:layout_alignParentBottom="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingBottom="5dp">
+            android:paddingBottom="@dimen/default_tiny_padding">
 
             <ImageView
                 android:layout_width="@dimen/video_info_mini_icons_size"
                 android:layout_height="@dimen/video_info_mini_icons_size"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/default_general_margin"
                 android:src="@drawable/ic_play_circle_outline_black_24dp" />
 
             <TextView
@@ -67,16 +63,16 @@
                 android:layout_marginStart="@dimen/video_info_count_text_margin_start"
                 android:gravity="center"
                 android:textColor="@color/black_alpha_45"
-                android:textSize="12sp" />
+                android:textSize="@dimen/default_tiny_text_size" />
 
             <Space
-                android:layout_width="16dp"
+                android:layout_width="@dimen/activity_vertical_margin"
                 android:layout_height="match_parent" />
 
             <ImageView
                 android:layout_width="@dimen/video_info_mini_icons_size"
                 android:layout_height="@dimen/video_info_mini_icons_size"
-                android:layout_marginStart="10dp"
+                android:layout_marginStart="@dimen/default_general_margin"
                 android:src="@drawable/ic_subtitles_black_24dp" />
 
             <TextView
@@ -86,7 +82,7 @@
                 android:layout_marginStart="@dimen/video_info_count_text_margin_start"
                 android:gravity="center"
                 android:textColor="@color/black_alpha_45"
-                android:textSize="12sp" />
+                android:textSize="@dimen/default_tiny_text_size" />
         </LinearLayout>
 
 
@@ -96,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:padding="@dimen/card_title_margin"
-            android:paddingBottom="10dp"
+            android:paddingBottom="@dimen/default_general_margin"
             android:visibility="gone">
 
             <TextView
@@ -107,7 +103,7 @@
                 android:layout_marginStart="@dimen/video_info_count_text_margin_start"
                 android:gravity="center"
                 android:textColor="@color/black_alpha_45"
-                android:textSize="14sp" />
+                android:textSize="@dimen/default_small_text_size" />
 
 
             <TextView
@@ -118,7 +114,7 @@
                 android:layout_marginEnd="@dimen/video_info_count_text_margin_start"
                 android:gravity="center"
                 android:textColor="@color/black_alpha_45"
-                android:textSize="14sp" />
+                android:textSize="@dimen/default_small_text_size" />
         </RelativeLayout>
 
     </RelativeLayout>

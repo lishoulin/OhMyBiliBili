@@ -12,7 +12,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.bangumi.SpecialTopic;
 
 import java.util.ArrayList;
@@ -29,8 +29,7 @@ public class SpecialVideoRecyclerAdapter extends AbsRecyclerViewAdapter
 
     private List<SpecialTopic.Item> spItems = new ArrayList<>();
 
-    public SpecialVideoRecyclerAdapter(RecyclerView recyclerView,
-                                       List<SpecialTopic.Item> spItems)
+    public SpecialVideoRecyclerAdapter(RecyclerView recyclerView, List<SpecialTopic.Item> spItems)
     {
 
         super(recyclerView);
@@ -59,8 +58,10 @@ public class SpecialVideoRecyclerAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(Uri.parse(item.cover))
+                    .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mPreviewImage);
         }
         super.onBindViewHolder(holder, position);
@@ -76,9 +77,9 @@ public class SpecialVideoRecyclerAdapter extends AbsRecyclerViewAdapter
     private class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mPreviewImage;
+        ImageView mPreviewImage;
 
-        public TextView mSpNum;
+        TextView mSpNum;
 
         public ItemViewHolder(View itemView)
         {

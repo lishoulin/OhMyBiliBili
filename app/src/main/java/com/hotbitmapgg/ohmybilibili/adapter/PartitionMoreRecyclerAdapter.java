@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.partition.PartitionMoreVideoItem;
 
 import java.util.List;
@@ -28,8 +28,7 @@ public class PartitionMoreRecyclerAdapter extends AbsRecyclerViewAdapter
 
     private List<PartitionMoreVideoItem> mList;
 
-    public PartitionMoreRecyclerAdapter(RecyclerView recyclerView,
-                                        List<PartitionMoreVideoItem> list)
+    public PartitionMoreRecyclerAdapter(RecyclerView recyclerView, List<PartitionMoreVideoItem> list)
     {
 
         super(recyclerView);
@@ -52,9 +51,10 @@ public class PartitionMoreRecyclerAdapter extends AbsRecyclerViewAdapter
 
                 Glide.with(getContext())
                         .load(Uri.parse(videoItemInfo.pic))
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .placeholder(R.drawable.bili_default_image_tv)
+                        .dontAnimate()
                         .into(mHolder.mPreviewImage);
 
                 String play = videoItemInfo.play;
@@ -91,15 +91,15 @@ public class PartitionMoreRecyclerAdapter extends AbsRecyclerViewAdapter
     private class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mPreviewImage;
+        ImageView mPreviewImage;
 
-        public TextView mTitleView;
+        TextView mTitleView;
 
-        public TextView mPlayNum;
+        TextView mPlayNum;
 
-        public TextView mReviewNum;
+        TextView mReviewNum;
 
-        public TextView mUploadUser;
+        TextView mUploadUser;
 
 
         public ItemViewHolder(View itemView)

@@ -5,7 +5,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.TextView;
 
 import com.hotbitmapgg.ohmybilibili.R;
@@ -13,7 +12,7 @@ import com.hotbitmapgg.ohmybilibili.base.RxAppCompatBaseActivity;
 import com.hotbitmapgg.ohmybilibili.utils.CommonUtils;
 import com.hotbitmapgg.ohmybilibili.utils.ToastUtil;
 import com.hotbitmapgg.ohmybilibili.widget.CustomEmptyView;
-import com.hotbitmapgg.ohmybilibili.widget.NumberProgressBar;
+import com.hotbitmapgg.ohmybilibili.widget.progressbar.NumberProgressBar;
 
 import butterknife.Bind;
 
@@ -58,6 +57,7 @@ public class OffLineDownloadActivity extends RxAppCompatBaseActivity
         mCacheSize.setText("主存储:" + totalSizeStr + "/" + "可用:" + availabSizeStr);
 
         CustomEmptyView mEmptyLayout = (CustomEmptyView) findViewById(R.id.empty_layout);
+        assert mEmptyLayout != null;
         mEmptyLayout.setEmptyImage(R.drawable.img_tips_error_no_downloads);
         mEmptyLayout.setEmptyText("没有找到你的缓存哟");
         mEmptyLayout.hideReloadButton();
@@ -70,16 +70,7 @@ public class OffLineDownloadActivity extends RxAppCompatBaseActivity
         mToolbar.setTitle("离线缓存");
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationIcon(R.drawable.action_button_back_pressed_light);
-        mToolbar.setNavigationOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-
-                finish();
-            }
-        });
+        mToolbar.setNavigationOnClickListener(v -> finish());
     }
 
 
@@ -91,8 +82,7 @@ public class OffLineDownloadActivity extends RxAppCompatBaseActivity
         //取整相减
         int size = (int) (Math.floor(totalSize) - Math.floor(availabSize));
         double v = (size / Math.floor(totalSize)) * 100;
-        int progress = (int) Math.floor(v);
-        return progress;
+        return (int) Math.floor(v);
     }
 
 

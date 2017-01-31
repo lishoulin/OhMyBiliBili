@@ -11,7 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.video.VideoComment;
 import com.hotbitmapgg.ohmybilibili.network.auxiliary.UrlHelper;
 import com.hotbitmapgg.ohmybilibili.widget.CircleImageView;
@@ -30,8 +30,7 @@ public class VideoCommentAdapter extends AbsRecyclerViewAdapter
 
     private List<VideoComment.List> comments = new ArrayList<>();
 
-    public VideoCommentAdapter(RecyclerView recyclerView,
-                               List<VideoComment.List> comments)
+    public VideoCommentAdapter(RecyclerView recyclerView, List<VideoComment.List> comments)
     {
 
         super(recyclerView);
@@ -126,23 +125,23 @@ public class VideoCommentAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public CircleImageView mUserAvatar;
+        CircleImageView mUserAvatar;
 
-        public TextView mUserName;
+        TextView mUserName;
 
-        public ImageView mUserLv;
+        ImageView mUserLv;
 
-        public ImageView mUserSex;
+        ImageView mUserSex;
 
-        public TextView mFloor;
+        TextView mFloor;
 
-        public TextView mCommentTime;
+        TextView mCommentTime;
 
-        public TextView mCommentNum;
+        TextView mCommentNum;
 
-        public TextView mSpot;
+        TextView mSpot;
 
-        public TextView mContent;
+        TextView mContent;
 
         public ItemViewHolder(View itemView)
         {

@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.hotbitmapgg.ohmybilibili.R;
@@ -13,12 +12,12 @@ import com.hotbitmapgg.ohmybilibili.adapter.section.HomeRecommendBannerSection;
 import com.hotbitmapgg.ohmybilibili.adapter.section.HomeRecommendTopicSection;
 import com.hotbitmapgg.ohmybilibili.adapter.section.HomeRecommendedSection;
 import com.hotbitmapgg.ohmybilibili.base.RxLazyFragment;
-import com.hotbitmapgg.ohmybilibili.entity.BaseBanner;
+import com.hotbitmapgg.ohmybilibili.entity.recommended.RecommendBannerInfo;
 import com.hotbitmapgg.ohmybilibili.entity.recommended.RecommendInfo;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
-import com.hotbitmapgg.ohmybilibili.utils.LogUtil;
 import com.hotbitmapgg.ohmybilibili.utils.SnackbarUtil;
 import com.hotbitmapgg.ohmybilibili.widget.CustomEmptyView;
+import com.hotbitmapgg.ohmybilibili.widget.banner.BannerEntity;
 import com.hotbitmapgg.ohmybilibili.widget.sectioned.SectionedRecyclerViewAdapter;
 
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ import java.util.List;
 import butterknife.Bind;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -51,14 +49,18 @@ public class HomeRecommendedFragment extends RxLazyFragment
 
     private List<RecommendInfo.ResultBean> results = new ArrayList<>();
 
-    private List<BaseBanner> banners = new ArrayList<>();
+    private List<BannerEntity> banners = new ArrayList<>();
 
-    private static final String BANNER_TYPE = "weblink";
+    private List<RecommendBannerInfo.DataBean> recommendBanners = new ArrayList<>();
 
     //RecycleView是否正在刷新
     private boolean mIsRefreshing = false;
 
     private SectionedRecyclerViewAdapter mSectionedAdapter;
+
+    private static final String TYPE_TOPIC = "weblink";
+
+    private static final String TYPE_ACTIVITY_CENTER = "activity";
 
     private int[] icons = new int[]{
             R.drawable.ic_header_hot,
@@ -66,13 +68,16 @@ public class HomeRecommendedFragment extends RxLazyFragment
             R.drawable.ic_category_t13,
             R.drawable.ic_category_t1,
             R.drawable.ic_category_t3,
+            R.drawable.ic_header_topic,
             R.drawable.ic_category_t129,
+            R.drawable.ic_header_topic,
             R.drawable.ic_category_t4,
             R.drawable.ic_category_t119,
             R.drawable.ic_category_t36,
             R.drawable.ic_header_activity_center,
             R.drawable.ic_category_t160,
             R.drawable.ic_category_t155,
+            R.drawable.ic_header_topic,
             R.drawable.ic_category_t5,
             R.drawable.ic_category_t11,
             R.drawable.ic_category_t23
@@ -145,32 +150,17 @@ public class HomeRecommendedFragment extends RxLazyFragment
     {
 
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-        mSwipeRefreshLayout.post(new Runnable()
-        {
+        mSwipeRefreshLayout.post(() -> {
 
-            @Override
-            public void run()
-            {
-
-                mSwipeRefreshLayout.setRefreshing(true);
-                mIsRefreshing = true;
-                getHomeRecommendedData();
-            }
+            mSwipeRefreshLayout.setRefreshing(true);
+            mIsRefreshing = true;
+            getHomeRecommendedData();
         });
 
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener()
-        {
+        mSwipeRefreshLayout.setOnRefreshListener(() -> {
 
-            @Override
-            public void onRefresh()
-            {
-
-                banners.clear();
-                results.clear();
-                mIsRefreshing = true;
-                mSectionedAdapter.removeAllSections();
-                getHomeRecommendedData();
-            }
+            clearData();
+            getHomeRecommendedData();
         });
     }
 
@@ -179,63 +169,50 @@ public class HomeRecommendedFragment extends RxLazyFragment
     {
 
         RetrofitHelper.getHomeRecommendedApi()
-                .getRecommendedInfo()
-                .compose(this.<RecommendInfo> bindToLifecycle())
-                .flatMap(new Func1<RecommendInfo,Observable<String>>()
+                .getRecommendedBannerInfo()
+                .compose(this.bindToLifecycle())
+                .flatMap(new Func1<RecommendBannerInfo,Observable<RecommendInfo>>()
                 {
 
                     @Override
-                    public Observable<String> call(RecommendInfo recommendInfo)
+                    public Observable<RecommendInfo> call(RecommendBannerInfo recommendBannerInfo)
                     {
-
-                        int size = recommendInfo.getResult().size();
-                        for (int i = 0; i < size; i++)
-                        {
-                            RecommendInfo.ResultBean result = recommendInfo.getResult().get(i);
-                            BaseBanner banner;
-                            if (result.getType() != null)
-                            {
-                                if (result.getType().equals(BANNER_TYPE))
-                                {
-                                    List<RecommendInfo.ResultBean.BodyBean> bodys = result.getBody();
-                                    RecommendInfo.ResultBean.BodyBean body = bodys.get(0);
-                                    banner = new BaseBanner();
-                                    banner.img = body.getCover();
-                                    banner.title = body.getTitle();
-                                    banner.link = body.getParam();
-                                    banners.add(banner);
-                                } else
-                                {
-                                    results.add(result);
-                                }
-                            }
-                        }
-
-                        return Observable.just("onNext");
+                        //设置Banner数据
+                        recommendBanners.addAll(recommendBannerInfo.getData());
+                        convertBanner();
+                        //在请求首页推荐数据
+                        return RetrofitHelper.getHomeRecommendedApi().getRecommendedInfo();
                     }
                 })
+                .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<String>()
-                {
+                .subscribe(recommendInfo -> {
 
-                    @Override
-                    public void call(String s)
-                    {
+                    results.addAll(recommendInfo.getResult());
+                    finishTask();
+                }, throwable -> {
 
-                        finishTask();
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        initEmptyView();
-                        LogUtil.all("首页推荐界面加载失败" + throwable.getMessage());
-                    }
+                    initEmptyView();
                 });
+    }
+
+    /**
+     * 设置轮播banners
+     */
+    private void convertBanner()
+    {
+
+        BannerEntity banner;
+        for (int i = 0, size = recommendBanners.size(); i < size; i++)
+        {
+            RecommendBannerInfo.DataBean dataBean = recommendBanners.get(i);
+            banner = new BannerEntity();
+            banner.img = dataBean.getImage();
+            banner.title = dataBean.getTitle();
+            banner.link = dataBean.getValue();
+            banners.add(banner);
+        }
     }
 
 
@@ -245,37 +222,36 @@ public class HomeRecommendedFragment extends RxLazyFragment
         mSwipeRefreshLayout.setRefreshing(false);
         mIsRefreshing = false;
         hideEmptyView();
-
         mSectionedAdapter.addSection(new HomeRecommendBannerSection(banners));
-        for (int i = 0, size = results.size() + 2; i < size; i++)
-        {
 
-            if (i == 9)
+        int size = results.size();
+        for (int i = 0; i < size; i++)
+        {
+            String type = results.get(i).getType();
+            switch (type)
             {
-                mSectionedAdapter.addSection(new HomeRecommendActivityCenterSection(
-                        getActivity(),
-                        results.get(9).getBody()));
-            } else if (i == size - 2)
-            {
-                mSectionedAdapter.addSection(new HomeRecommendTopicSection(getActivity(),
-                        banners.get(banners.size() - 2).img,
-                        banners.get(banners.size() - 2).title));
-            }
-            else if(i == size - 1)
-            {
-                mSectionedAdapter.addSection(new HomeRecommendTopicSection(getActivity(),
-                        banners.get(banners.size() - 1).img,
-                        banners.get(banners.size() - 1).title));
-            }
-            else
-            {
-                mSectionedAdapter.addSection(new HomeRecommendedSection(
-                        getActivity(),
-                        icons[i],
-                        results.get(i).getHead().getTitle(),
-                        results.get(i).getType(),
-                        results.get(1).getHead().getCount(),
-                        results.get(i).getBody()));
+                case TYPE_TOPIC:
+                    //话题
+                    mSectionedAdapter.addSection(new HomeRecommendTopicSection(getActivity(),
+                            results.get(i).getBody().get(0).getCover(),
+                            results.get(i).getBody().get(0).getTitle(),
+                            results.get(i).getBody().get(0).getParam()));
+                    break;
+                case TYPE_ACTIVITY_CENTER:
+                    //活动中心
+                    mSectionedAdapter.addSection(new HomeRecommendActivityCenterSection(
+                            getActivity(),
+                            results.get(i).getBody()));
+                    break;
+                default:
+                    mSectionedAdapter.addSection(new HomeRecommendedSection(
+                            getActivity(),
+                            icons[i],
+                            results.get(i).getHead().getTitle(),
+                            results.get(i).getType(),
+                            results.get(1).getHead().getCount(),
+                            results.get(i).getBody()));
+                    break;
             }
         }
         mSectionedAdapter.notifyDataSetChanged();
@@ -286,47 +262,35 @@ public class HomeRecommendedFragment extends RxLazyFragment
 
         mSwipeRefreshLayout.setRefreshing(false);
         mCustomEmptyView.setVisibility(View.VISIBLE);
+        mRecyclerView.setVisibility(View.GONE);
         mCustomEmptyView.setEmptyImage(R.drawable.img_tips_error_load_error);
         mCustomEmptyView.setEmptyText("加载失败~(≧▽≦)~啦啦啦.");
         SnackbarUtil.showMessage(mRecyclerView, "数据加载失败,请重新加载或者检查网络是否链接");
-        mCustomEmptyView.reload(new CustomEmptyView.ReloadOnClickListener()
-        {
-
-            @Override
-            public void reloadClick()
-            {
-
-                showProgressBar();
-            }
-        });
+        mCustomEmptyView.reload(this::showProgressBar);
     }
 
     public void hideEmptyView()
     {
 
         mCustomEmptyView.setVisibility(View.GONE);
+        mRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+
+    private void clearData()
+    {
+
+        banners.clear();
+        recommendBanners.clear();
+        results.clear();
+        mIsRefreshing = true;
+        mSectionedAdapter.removeAllSections();
     }
 
 
     private void setRecycleNoScroll()
     {
 
-        mRecyclerView.setOnTouchListener(new View.OnTouchListener()
-        {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event)
-            {
-
-
-                if (mIsRefreshing)
-                {
-                    return true;
-                } else
-                {
-                    return false;
-                }
-            }
-        });
+        mRecyclerView.setOnTouchListener((v, event) -> mIsRefreshing);
     }
 }

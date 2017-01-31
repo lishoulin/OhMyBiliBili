@@ -1,5 +1,6 @@
 package com.hotbitmapgg.ohmybilibili.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
 import android.util.AttributeSet;
@@ -16,8 +17,7 @@ import android.widget.ScrollView;
  */
 public class SpringScrollView extends ScrollView
 {
-
-    // data
+    
     private static final float MOVE_FACTOR = 0.5f; // 移动因子,手指移动100px,那么View就只移动50px
 
     private static final int ANIM_TIME = 300; // 松开手指后, 界面回到正常位置需要的动画时间
@@ -55,6 +55,7 @@ public class SpringScrollView extends ScrollView
         super(context, attrs, defStyle);
     }
 
+    @SuppressLint("MissingSuperCall")
     @Override
     protected void onFinishInflate()
     {

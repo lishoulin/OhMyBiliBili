@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.bangumi.BangumiIndex;
 
 import java.util.ArrayList;
@@ -27,8 +27,7 @@ public class BangumiIndexAdapter extends AbsRecyclerViewAdapter
 
     private List<BangumiIndex> bangumiIndexList = new ArrayList<>();
 
-    public BangumiIndexAdapter(RecyclerView recyclerView,
-                               List<BangumiIndex> bangumiIndexList)
+    public BangumiIndexAdapter(RecyclerView recyclerView, List<BangumiIndex> bangumiIndexList)
     {
 
         super(recyclerView);
@@ -55,10 +54,12 @@ public class BangumiIndexAdapter extends AbsRecyclerViewAdapter
 
             Glide.with(getContext())
                     .load(bangumiIndex.cover)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mImageView);
+
             itemViewHolder.mTextView.setText(bangumiIndex.title);
         }
         super.onBindViewHolder(holder, position);
@@ -74,9 +75,9 @@ public class BangumiIndexAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends AbsRecyclerViewAdapter.ClickableViewHolder
     {
 
-        public ImageView mImageView;
+        ImageView mImageView;
 
-        public TextView mTextView;
+        TextView mTextView;
 
         public ItemViewHolder(View itemView)
         {

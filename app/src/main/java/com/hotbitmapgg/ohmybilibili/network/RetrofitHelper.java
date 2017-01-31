@@ -2,7 +2,9 @@ package com.hotbitmapgg.ohmybilibili.network;
 
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.hotbitmapgg.ohmybilibili.OhMyBiliBiliApp;
+import com.hotbitmapgg.ohmybilibili.network.api.AllRankService;
 import com.hotbitmapgg.ohmybilibili.network.api.AuthorRecommendedService;
+import com.hotbitmapgg.ohmybilibili.network.api.BangumiDetailsRecommendService;
 import com.hotbitmapgg.ohmybilibili.network.api.BangumiIndexService;
 import com.hotbitmapgg.ohmybilibili.network.api.BangumiRecommendService;
 import com.hotbitmapgg.ohmybilibili.network.api.BiliBiliLiveService;
@@ -11,12 +13,14 @@ import com.hotbitmapgg.ohmybilibili.network.api.HDVideoService;
 import com.hotbitmapgg.ohmybilibili.network.api.Html5VideoUrlService;
 import com.hotbitmapgg.ohmybilibili.network.api.IndexService;
 import com.hotbitmapgg.ohmybilibili.network.api.LiveUrlService;
+import com.hotbitmapgg.ohmybilibili.network.api.SeasonNewBangumiService;
+import com.hotbitmapgg.ohmybilibili.network.api.OriginalRankService;
 import com.hotbitmapgg.ohmybilibili.network.api.PartitionMoreService;
 import com.hotbitmapgg.ohmybilibili.network.api.RecommendedService;
 import com.hotbitmapgg.ohmybilibili.network.api.SpecialTopicInfoService;
 import com.hotbitmapgg.ohmybilibili.network.api.SpecialTopicItemService;
 import com.hotbitmapgg.ohmybilibili.network.api.TotalStationSearchService;
-import com.hotbitmapgg.ohmybilibili.network.api.TwoDimensionalService;
+import com.hotbitmapgg.ohmybilibili.network.api.NewBangumiSerialService;
 import com.hotbitmapgg.ohmybilibili.network.api.UserInfoService;
 import com.hotbitmapgg.ohmybilibili.network.api.UserUpVideoService;
 import com.hotbitmapgg.ohmybilibili.network.api.VideoCommentService;
@@ -58,9 +62,11 @@ public class RetrofitHelper
 
     private static final String HOST_API_BASE_URL = "http://api.bilibili.cn/";
 
+    private static final String BANGUMI_BASE_URL = "http://bangumi.bilibili.com/";
+
     public static final String HDSLB_HOST = "http://i2.hdslb.com";
 
-    public static final String COMMON_UA_STR = "OhMyBiliBili Android Client/2.1 (100332338@qq.com)";
+    private static final String COMMON_UA_STR = "OhMyBiliBili Android Client/2.1 (100332338@qq.com)";
 
     static
     {
@@ -150,7 +156,7 @@ public class RetrofitHelper
      *
      * @return
      */
-    public static TwoDimensionalService getTwoDimensionalApi()
+    public static NewBangumiSerialService getNewBangumiSerial()
     {
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -160,7 +166,7 @@ public class RetrofitHelper
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        return retrofit.create(TwoDimensionalService.class);
+        return retrofit.create(NewBangumiSerialService.class);
     }
 
 
@@ -444,6 +450,82 @@ public class RetrofitHelper
 
 
     /**
+     * 获取全区排行榜视频
+     *
+     * @return
+     */
+    public static AllRankService getAllRankApi()
+    {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(API_BASE_URL)
+                .client(mOkHttpClient)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+
+        return retrofit.create(AllRankService.class);
+    }
+
+
+    /**
+     * 获取原创排行榜数据
+     *
+     * @return
+     */
+    public static OriginalRankService getOriginalRankApi()
+    {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(HOST_API_BASE_URL)
+                .client(mOkHttpClient)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(OriginalRankService.class);
+    }
+
+
+    /**
+     * 获取分季新番数据
+     *
+     * @return
+     */
+    public static SeasonNewBangumiService getSeasonNewBangumiApi()
+    {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(APP_BASE_URL)
+                .client(mOkHttpClient)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(SeasonNewBangumiService.class);
+    }
+
+    /**
+     * 获取番剧详情中的番剧推荐数据
+     *
+     * @return
+     */
+    public static BangumiDetailsRecommendService getBangumiDetailsRecommendedApi()
+    {
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(BANGUMI_BASE_URL)
+                .client(mOkHttpClient)
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(BangumiDetailsRecommendService.class);
+    }
+
+
+    /**
      * 初始化OKHttpClient
      * 设置缓存
      * 设置超时时间
@@ -485,7 +567,7 @@ public class RetrofitHelper
      * 添加UA拦截器
      * B站请求API文档需要加上UA
      */
-    static class UserAgentInterceptor implements Interceptor
+    private static class UserAgentInterceptor implements Interceptor
     {
 
         @Override

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.base.AbsRecyclerViewAdapter;
+import com.hotbitmapgg.ohmybilibili.adapter.helper.AbsRecyclerViewAdapter;
 import com.hotbitmapgg.ohmybilibili.entity.search.SearchResult;
 
 import java.util.List;
@@ -56,6 +56,7 @@ public class BangumiResultsAdapter extends AbsRecyclerViewAdapter
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .placeholder(R.drawable.bili_default_image_tv)
+                    .dontAnimate()
                     .into(itemViewHolder.mBangumiPic);
 
             itemViewHolder.mBangumiTitle.setText(bangumiBean.getTitle());
@@ -75,13 +76,11 @@ public class BangumiResultsAdapter extends AbsRecyclerViewAdapter
     public class ItemViewHolder extends ClickableViewHolder
     {
 
-        public ImageView mBangumiPic;
+        ImageView mBangumiPic;
 
-        public TextView mBangumiTitle;
+        TextView mBangumiTitle;
 
-//        public TextView mBangumiFrom;
-
-        public TextView mBangumiDetails;
+        TextView mBangumiDetails;
 
         public ItemViewHolder(View itemView)
         {
@@ -90,7 +89,6 @@ public class BangumiResultsAdapter extends AbsRecyclerViewAdapter
 
             mBangumiPic = $(R.id.item_img);
             mBangumiTitle = $(R.id.item_title);
-          //  mBangumiFrom = $(R.id.item_user_name);
             mBangumiDetails = $(R.id.item_details);
         }
     }

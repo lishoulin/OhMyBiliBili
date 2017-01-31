@@ -1,7 +1,9 @@
 package com.hotbitmapgg.ohmybilibili.adapter;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -9,22 +11,25 @@ import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.hotbitmapgg.ohmybilibili.R;
-import com.hotbitmapgg.ohmybilibili.adapter.liveholder.LiveBannerViewHolder;
-import com.hotbitmapgg.ohmybilibili.adapter.liveholder.LiveEntranceViewHolder;
-import com.hotbitmapgg.ohmybilibili.adapter.liveholder.LiveItemViewHolder;
-import com.hotbitmapgg.ohmybilibili.adapter.liveholder.LivePartitionViewHolder;
-import com.hotbitmapgg.ohmybilibili.entity.BaseBanner;
+import com.hotbitmapgg.ohmybilibili.widget.banner.BannerEntity;
 import com.hotbitmapgg.ohmybilibili.entity.live.Live;
 import com.hotbitmapgg.ohmybilibili.entity.live.LiveIndex;
 import com.hotbitmapgg.ohmybilibili.entity.live.PartitionSub;
 import com.hotbitmapgg.ohmybilibili.module.home.live.LivePlayerActivity;
+import com.hotbitmapgg.ohmybilibili.widget.CircleImageView;
+import com.hotbitmapgg.ohmybilibili.widget.banner.BannerView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
 
 /**
  * Created by hcc on 16/8/4 14:12
@@ -39,23 +44,19 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
 
     private LiveIndex liveIndex;
 
-    private PartitionSub partition;
-
     private int entranceSize;
 
-    private int partitionSize;
+    private List<BannerEntity> banner;
 
-    private int tempSize;
+    private List<Integer> liveSizes = new ArrayList<>();
 
-    private List<BaseBanner> banner;
-
-    //快速入口
+    //直播分类入口
     private static final int TYPE_ENTRANCE = 0;
 
     //直播Item
     private static final int TYPE_LIVE_ITEM = 1;
 
-    //分类Title
+    //直播分类Title
     private static final int TYPE_PARTITION = 2;
 
     //直播页Banner
@@ -81,22 +82,19 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
         this.context = context;
     }
 
-    private List<Integer> liveSizes = new ArrayList<>();
-
     public void setLiveIndex(LiveIndex data)
     {
 
         this.liveIndex = data;
-        //data.entranceIcons.size();
         entranceSize = 4;
-        partitionSize = data.partitions.size();
+        int partitionSize = data.partitions.size();
 
         banner = new ArrayList<>();
         banner.clear();
         banner = data.banner;
 
         liveSizes.clear();
-        tempSize = 0;
+        int tempSize = 0;
         for (int i = 0; i < partitionSize; i++)
         {
             liveSizes.add(tempSize);
@@ -122,6 +120,7 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
         return 0;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
     {
@@ -158,15 +157,12 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
         final Live item;
         if (holder instanceof LiveEntranceViewHolder)
         {
-            //liveIndex.entranceIcons.get(position).name
-            //liveIndex.entranceIcons.get(position).entrance_icon.src
             ((LiveEntranceViewHolder) holder).title.setText(entranceTitles[position]);
 
             Glide.with(context)
                     .load(entranceIconRes[position])
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(((LiveEntranceViewHolder) holder).image);
-
         } else if (holder instanceof LiveItemViewHolder)
         {
             try
@@ -176,8 +172,10 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
 
                 Glide.with(context)
                         .load(item.cover.src)
+                        .centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .placeholder(R.drawable.bili_default_image_tv)
+                        .dontAnimate()
                         .into(((LiveItemViewHolder) holder).itemLiveCover);
 
                 ((LiveItemViewHolder) holder).itemLiveTitle.setText(item.title);
@@ -193,30 +191,17 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
 
 
                 ((LiveItemViewHolder) holder).itemLiveCount.setText(String.valueOf(item.online));
-                ((LiveItemViewHolder) holder).itemLiveLayout.setOnClickListener(new View.OnClickListener()
-                {
-
-                    @Override
-                    public void onClick(View v)
-                    {
-
-                        LivePlayerActivity.launch(
-                                (Activity) context,
-                                item.room_id,
-                                item.title,
-                                item.online,
-                                item.owner.face,
-                                item.owner.name,
-                                item.owner.mid);
-                    }
-                });
+                ((LiveItemViewHolder) holder).itemLiveLayout.setOnClickListener(v -> LivePlayerActivity.
+                        launch((Activity) context, item.room_id,
+                        item.title, item.online, item.owner.face,
+                        item.owner.name, item.owner.mid));
             } catch (Exception e)
             {
                 e.printStackTrace();
             }
         } else if (holder instanceof LivePartitionViewHolder)
         {
-            partition = liveIndex.partitions.get(partitionCol(position)).partition;
+            PartitionSub partition = liveIndex.partitions.get(partitionCol(position)).partition;
 
             Glide.with(context)
                     .load(partition.sub_icon.src)
@@ -226,9 +211,11 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
             ((LivePartitionViewHolder) holder).itemTitle.setText(partition.name);
             SpannableStringBuilder stringBuilder = new SpannableStringBuilder("当前" + partition.count + "个直播");
             ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(
-                    context.getResources().getColor(R.color.colorPrimary));
+                    context.getResources().getColor(R.color.pink_text_color));
+
             stringBuilder.setSpan(foregroundColorSpan, 2,
                     stringBuilder.length() - 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
             ((LivePartitionViewHolder) holder).itemCount.setText(stringBuilder);
         } else if (holder instanceof LiveBannerViewHolder)
         {
@@ -286,5 +273,98 @@ public class BiliBiliLiveRecyclerAdapter extends RecyclerView.Adapter
 
         pos -= entranceSize;
         return (pos % 5 == 0);
+    }
+
+
+    /**
+     * 直播界面Banner ViewHolder
+     */
+    static class LiveBannerViewHolder extends RecyclerView.ViewHolder
+    {
+
+        @Bind(R.id.item_live_banner)
+        public BannerView banner;
+
+        LiveBannerViewHolder(View itemView)
+        {
+
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    /**
+     * 直播界面Item分类 ViewHolder
+     */
+    static class LiveEntranceViewHolder extends RecyclerView.ViewHolder
+    {
+
+        @Bind(R.id.live_entrance_title)
+        public TextView title;
+
+        @Bind(R.id.live_entrance_image)
+        public ImageView image;
+
+        LiveEntranceViewHolder(View itemView)
+        {
+
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    /**
+     * 直播界面Grid Item ViewHolder
+     */
+    static class LiveItemViewHolder extends RecyclerView.ViewHolder
+    {
+
+        @Bind(R.id.item_live_cover)
+        ImageView itemLiveCover;
+
+        @Bind(R.id.item_live_user)
+        TextView itemLiveUser;
+
+        @Bind(R.id.item_live_title)
+        TextView itemLiveTitle;
+
+        @Bind(R.id.item_live_user_cover)
+        CircleImageView itemLiveUserCover;
+
+        @Bind(R.id.item_live_count)
+        TextView itemLiveCount;
+
+        @Bind(R.id.item_live_layout)
+        CardView itemLiveLayout;
+
+        LiveItemViewHolder(View itemView)
+        {
+
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+    }
+
+    /**
+     * 直播界面分区类型 ViewHolder
+     */
+    static class LivePartitionViewHolder extends RecyclerView.ViewHolder
+    {
+
+        @Bind(R.id.item_live_partition_icon)
+        ImageView itemIcon;
+
+        @Bind(R.id.item_live_partition_title)
+        TextView itemTitle;
+
+        @Bind(R.id.item_live_partition_count)
+        TextView itemCount;
+
+        LivePartitionViewHolder(View itemView)
+        {
+
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
     }
 }

@@ -4,8 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/navigation_header_height"
-    android:clickable="true"
-    android:orientation="vertical">
+    android:clickable="true">
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -25,6 +24,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="@dimen/activity_vertical_margin"
         android:orientation="horizontal">
 
         <com.hotbitmapgg.ohmybilibili.widget.CircleImageView
@@ -42,8 +42,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_marginEnd="20dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginEnd="@dimen/default_grow_margin"
+            android:layout_marginTop="@dimen/default_grow_margin"
             android:orientation="horizontal">
 
             <ImageView
@@ -57,7 +57,7 @@
                 android:id="@+id/iv_head_switch_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
+                android:layout_marginStart="@dimen/default_grow_margin"
                 android:src="@drawable/ic_switch_night" />
 
 

@@ -8,12 +8,14 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.flyco.tablayout.SlidingTabLayout;
 import com.hotbitmapgg.ohmybilibili.R;
@@ -21,6 +23,7 @@ import com.hotbitmapgg.ohmybilibili.base.RxAppCompatBaseActivity;
 import com.hotbitmapgg.ohmybilibili.entity.search.SearchResult;
 import com.hotbitmapgg.ohmybilibili.network.RetrofitHelper;
 import com.hotbitmapgg.ohmybilibili.utils.KeyBoardUtil;
+import com.hotbitmapgg.ohmybilibili.utils.StatusBarUtils;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.widget.RxTextView;
 
@@ -32,7 +35,6 @@ import butterknife.Bind;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -71,10 +73,6 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
 
     private String content;
 
-    private int page = 1;
-
-    private int count = 10;
-
     private List<String> titles = new ArrayList<>();
 
     private List<Fragment> fragments = new ArrayList<>();
@@ -96,7 +94,10 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
     @Override
     public void initToolBar()
     {
-
+        //设置6.0以上StatusBar字体颜色
+        StatusBarUtils.from(this)
+                .setLightStatusBar(true)
+                .process();
     }
 
     @Override
@@ -110,6 +111,7 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
         mLoadingView.setImageResource(R.drawable.anim_search_loading);
         mAnimationDrawable = (AnimationDrawable) mLoadingView.getDrawable();
         showSearchAnim();
+        mSearchEdit.setText(content);
         getSearchData(content);
         search();
         setUpEditText();
@@ -119,68 +121,29 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
     {
 
         RxTextView.textChanges(mSearchEdit)
-                .compose(this.<CharSequence> bindToLifecycle())
-                .map(new Func1<CharSequence,String>()
-                {
-
-                    @Override
-                    public String call(CharSequence charSequence)
-                    {
-
-                        return charSequence.toString();
-                    }
-                })
+                .compose(this.bindToLifecycle())
+                .map(CharSequence::toString)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<String>()
-                {
+                .subscribe(s -> {
 
-                    @Override
-                    public void call(String s)
-                    {
-
-                        if (!TextUtils.isEmpty(s))
-                            mSearchTextClear.setVisibility(View.VISIBLE);
-                        else
-                            mSearchTextClear.setVisibility(View.GONE);
-                    }
+                    if (!TextUtils.isEmpty(s))
+                        mSearchTextClear.setVisibility(View.VISIBLE);
+                    else
+                        mSearchTextClear.setVisibility(View.GONE);
                 });
 
 
         RxView.clicks(mSearchTextClear)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Void>()
-                {
+                .subscribe(aVoid -> {
 
-                    @Override
-                    public void call(Void aVoid)
-                    {
-
-                        mSearchEdit.setText("");
-                    }
+                    mSearchEdit.setText("");
                 });
 
 
         RxTextView.editorActions(mSearchEdit)
-                .filter(new Func1<Integer,Boolean>()
-                {
-
-                    @Override
-                    public Boolean call(Integer integer)
-                    {
-
-                        return !TextUtils.isEmpty(mSearchEdit.getText().toString().trim());
-                    }
-                })
-                .filter(new Func1<Integer,Boolean>()
-                {
-
-                    @Override
-                    public Boolean call(Integer integer)
-                    {
-
-                        return integer == EditorInfo.IME_ACTION_SEARCH;
-                    }
-                })
+                .filter(integer -> !TextUtils.isEmpty(mSearchEdit.getText().toString().trim()))
+                .filter(integer -> integer == EditorInfo.IME_ACTION_SEARCH)
                 .flatMap(new Func1<Integer,Observable<String>>()
                 {
 
@@ -192,19 +155,13 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<String>()
-                {
+                .subscribe(s -> {
 
-                    @Override
-                    public void call(String s)
-                    {
-
-                        KeyBoardUtil.closeKeybord(mSearchEdit,
-                                TotalStationSearchActivity.this);
-                        showSearchAnim();
-                        clearData();
-                        getSearchData(s);
-                    }
+                    KeyBoardUtil.closeKeybord(mSearchEdit,
+                            TotalStationSearchActivity.this);
+                    showSearchAnim();
+                    clearData();
+                    getSearchData(s);
                 });
     }
 
@@ -213,40 +170,16 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
 
         RxView.clicks(mSearchBtn)
                 .throttleFirst(2, TimeUnit.SECONDS)
-                .map(new Func1<Void,String>()
-                {
-
-                    @Override
-                    public String call(Void aVoid)
-                    {
-
-                        return mSearchEdit.getText().toString().trim();
-                    }
-                })
-                .filter(new Func1<String,Boolean>()
-                {
-
-                    @Override
-                    public Boolean call(String s)
-                    {
-
-                        return !TextUtils.isEmpty(s);
-                    }
-                })
+                .map(aVoid -> mSearchEdit.getText().toString().trim())
+                .filter(s -> !TextUtils.isEmpty(s))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<String>()
-                {
+                .subscribe(s -> {
 
-                    @Override
-                    public void call(String s)
-                    {
-
-                        KeyBoardUtil.closeKeybord(mSearchEdit,
-                                TotalStationSearchActivity.this);
-                        showSearchAnim();
-                        clearData();
-                        getSearchData(s);
-                    }
+                    KeyBoardUtil.closeKeybord(mSearchEdit,
+                            TotalStationSearchActivity.this);
+                    showSearchAnim();
+                    clearData();
+                    getSearchData(s);
                 });
     }
 
@@ -270,31 +203,21 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
     private void getSearchData(String text)
     {
 
+        int page = 1;
+        int count = 10;
         RetrofitHelper.getSearchApi()
                 .search(text, page, count)
-                .compose(this.<SearchResult> bindToLifecycle())
+                .compose(this.bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<SearchResult>()
-                {
+                .subscribe(searchResult -> {
 
-                    @Override
-                    public void call(SearchResult searchResult)
-                    {
+                    pageinfo = searchResult.getPageinfo();
+                    result = searchResult.getResult();
+                    finishTask();
+                }, throwable -> {
 
-                        pageinfo = searchResult.getPageinfo();
-                        result = searchResult.getResult();
-                        finishTask();
-                    }
-                }, new Action1<Throwable>()
-                {
-
-                    @Override
-                    public void call(Throwable throwable)
-                    {
-
-                        setEmptyLayout();
-                    }
+                    setEmptyLayout();
                 });
     }
 
@@ -315,18 +238,51 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
         fragments.add(bangumiResultsFragment);
         fragments.add(topicResultsFragment);
 
-        SearchTabAdapter mAdapter =  new SearchTabAdapter(getSupportFragmentManager(), titles, fragments);
+        SearchTabAdapter mAdapter = new SearchTabAdapter(getSupportFragmentManager(), titles, fragments);
         mViewPager.setAdapter(mAdapter);
         mSlidingTabLayout.setViewPager(mViewPager);
+        measureTabLayoutTextWidth(0);
         mSlidingTabLayout.setCurrentTab(0);
         mAdapter.notifyDataSetChanged();
         mSlidingTabLayout.notifyDataSetChanged();
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener()
+        {
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
+            {
+
+            }
+
+            @Override
+            public void onPageSelected(int position)
+            {
+
+                measureTabLayoutTextWidth(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state)
+            {
+
+            }
+        });
     }
 
     public String checkNumResults(int numResult)
     {
 
         return numResult > 100 ? "99+" : String.valueOf(numResult);
+    }
+
+    private void measureTabLayoutTextWidth(int position)
+    {
+
+        String title = titles.get(position);
+        TextView titleView = mSlidingTabLayout.getTitleView(position);
+        TextPaint paint = titleView.getPaint();
+        float textWidth = paint.measureText(title);
+        mSlidingTabLayout.setIndicatorWidth(textWidth / 3);
     }
 
 
@@ -355,7 +311,8 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
         mLoadingView.setImageResource(R.drawable.search_failed);
     }
 
-    @OnClick(R.id.search_back) void OnBack()
+    @OnClick(R.id.search_back)
+    void OnBack()
     {
 
         onBackPressed();
@@ -402,9 +359,9 @@ public class TotalStationSearchActivity extends RxAppCompatBaseActivity
 
         private List<Fragment> fragments;
 
-        public SearchTabAdapter(FragmentManager fm,
-                                List<String> titles,
-                                List<Fragment> fragments)
+        SearchTabAdapter(FragmentManager fm,
+                         List<String> titles,
+                         List<Fragment> fragments)
         {
 
             super(fm);
